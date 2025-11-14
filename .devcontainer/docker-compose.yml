@@ -8,6 +8,8 @@ services:
     command: sleep infinity
     env_file:
       - devcontainer.env
+    ports:
+      - "8080:8080"
     depends_on:
       - db-recomandation-engine
 
