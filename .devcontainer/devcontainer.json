@@ -1,0 +1,25 @@
+{
+    "name": "Container Motor de Recomendaciones",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "motorRecomendation-app",
+    "workspaceFolder": "/workspaces",
+    "remoteUser": "root",
+    "postCreateCommand": "bash /workspaces/.devcontainer/setup.sh",
+    "postStartCommand": "mvn clean install && mvn spring-boot:run",
+   
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "vmware.vscode-boot-dev-pack",
+                "usernamehw.errorlens",
+                "pkief.material-icon-theme",
+                "eamodio.gitlens",
+                "ckolkman.vscode-postgres",
+                "vmware.vscode-boot-dev-pack",
+                "42crunch.vscode-openapi",
+                "postman.postman-for-vscode"
+                
+            ]
+        }
+    }
+}

@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  motorRecomendation-app:
+    image: mcr.microsoft.com/devcontainers/java:17-bookworm
+    container_name: motorRecomendation-app
+    volumes:
+      - ../:/workspaces
+    command: sleep infinity
+    env_file:
+      - devcontainer.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db-recomandation-engine
+
+  db-recomandation-engine:
+    image: postgres:15.2
+    container_name: db-recomandation-engine
+    restart: unless-stopped
+    env_file:
+      - devcontainer.env
+    volumes:
+      - recomendation-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  recomendation-data:
