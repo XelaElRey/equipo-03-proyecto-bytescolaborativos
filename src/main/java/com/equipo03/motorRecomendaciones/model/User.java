@@ -36,12 +36,14 @@ public class User {
     @Column(nullable = false, updatable = false)
     private final Instant createdAt = Instant.now();
 
-    //Relación 1:N con Rating
+    // Relación 1:N con Rating
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rating> ratings = new ArrayList<>();
 
-    //Relación 1:N con Recommendation
+    // Relación 1:N con Recommendation
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Recommendation> recommendations = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<TournamentParticipation> participations = new ArrayList<>();
 }
