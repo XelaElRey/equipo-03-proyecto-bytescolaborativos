@@ -1,14 +1,15 @@
-package com.equipo03.motorRecomendaciones.respository;
+package com.equipo03.motorRecomendaciones.repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.equipo03.motorRecomendaciones.enums.TournamentStatus;
 import com.equipo03.motorRecomendaciones.model.Tournament;
+import com.equipo03.motorRecomendaciones.model.enums.TournamentStatus;
 
 @Repository
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {

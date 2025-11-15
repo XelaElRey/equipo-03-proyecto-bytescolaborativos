@@ -4,10 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.equipo03.motorRecomendaciones.enums.TournamentStatus;
+import com.equipo03.motorRecomendaciones.model.enums.TournamentStatus;
 
 @Entity
+@Table(name = "tournaments")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -49,4 +52,7 @@ public class Tournament {
 	private TournamentStatus status = TournamentStatus.OPEN;
 
 	private Integer maxParticipants;
+
+	@OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL)
+	private List<TournamentParticipation> participations = new ArrayList<>();
 }

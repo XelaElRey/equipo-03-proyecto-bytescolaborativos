@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.equipo03.motorRecomendaciones.dto.TournamentCreatedResponseDTO;
 import com.equipo03.motorRecomendaciones.dto.TournamentDetailResponseDTO;
+import com.equipo03.motorRecomendaciones.dto.TournamentJoinRequestDTO;
+import com.equipo03.motorRecomendaciones.dto.TournamentJoinResponseDTO;
 import com.equipo03.motorRecomendaciones.dto.TournamentRequestDTO;
 import com.equipo03.motorRecomendaciones.dto.TournamentResponseDTO;
 import com.equipo03.motorRecomendaciones.service.TournamentService;
@@ -43,6 +45,7 @@ public class TournamentController {
         return ResponseEntity.ok(dto);
     }
 
+    // Hay que revisar que solo pueda hacerlo un admin
     @PostMapping
     public ResponseEntity<TournamentCreatedResponseDTO> createTournament(
             @RequestBody TournamentRequestDTO dto) {
@@ -50,4 +53,26 @@ public class TournamentController {
         TournamentCreatedResponseDTO created = tournamentService.createTournament(dto);
         return ResponseEntity.status(201).body(created);
     }
+
+    // Hay que revisar que se autentique el usuario, por el momento mandare su id en
+    // el body
+    @PostMapping("/{id}/join")
+    public ResponseEntity<TournamentJoinResponseDTO> join(
+            @PathVariable Long id,
+            @RequestBody(required = false) TournamentJoinRequestDTO request) {
+
+        if (request == null)
+            request = new TournamentJoinRequestDTO();
+
+        TournamentJoinResponseDTO response = tournamentService.joinTournament(id, request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        tournamentService.deleteTournament(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

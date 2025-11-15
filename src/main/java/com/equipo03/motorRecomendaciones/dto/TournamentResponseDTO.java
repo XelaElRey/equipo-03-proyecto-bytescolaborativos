@@ -8,5 +8,5 @@ public class TournamentResponseDTO {
     private String name;
     private String game;
     private String status;
-    // private int participants;
+    private int participants;
 }

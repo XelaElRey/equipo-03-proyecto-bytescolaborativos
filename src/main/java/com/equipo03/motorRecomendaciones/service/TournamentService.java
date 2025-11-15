@@ -1,5 +1,6 @@
 package com.equipo03.motorRecomendaciones.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -14,10 +15,17 @@ import com.equipo03.motorRecomendaciones.dto.TournamentRequestDTO;
 import com.equipo03.motorRecomendaciones.dto.TournamentResponseDTO;
 import com.equipo03.motorRecomendaciones.dto.TournamentCreatedResponseDTO;
 import com.equipo03.motorRecomendaciones.dto.TournamentDetailResponseDTO;
-import com.equipo03.motorRecomendaciones.enums.TournamentStatus;
+import com.equipo03.motorRecomendaciones.dto.TournamentJoinRequestDTO;
+import com.equipo03.motorRecomendaciones.dto.TournamentJoinResponseDTO;
+import com.equipo03.motorRecomendaciones.mapper.ParticipationMapper;
 import com.equipo03.motorRecomendaciones.mapper.TournamentMapper;
 import com.equipo03.motorRecomendaciones.model.Tournament;
-import com.equipo03.motorRecomendaciones.respository.TournamentRepository;
+import com.equipo03.motorRecomendaciones.model.TournamentParticipation;
+import com.equipo03.motorRecomendaciones.model.User;
+import com.equipo03.motorRecomendaciones.model.enums.TournamentStatus;
+import com.equipo03.motorRecomendaciones.repository.TournamentParticipationRepository;
+import com.equipo03.motorRecomendaciones.repository.TournamentRepository;
+import com.equipo03.motorRecomendaciones.repository.UserRepository;
 
 @Service
 public class TournamentService {
@@ -26,10 +34,18 @@ public class TournamentService {
     private TournamentRepository tournamentRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private TournamentParticipationRepository participationRepository;
+
+    @Autowired
     private TournamentMapper tournamentMapper;
 
-    // LISTA TODOS LOS TORNEOS (FALTA QUE DEVUELVA EL NUMERO DE PARTICIPANTES
-    // INSCRIPTOS)
+    @Autowired
+    private ParticipationMapper participationMapper;
+
+    // LISTA TODOS LOS TORNEOS
     public List<TournamentResponseDTO> getTournaments(Integer page, Integer size, String sort,
             String status, String game, String q) {
 
@@ -87,23 +103,28 @@ public class TournamentService {
         } else {
             tournaments = tournamentRepository.findAll(pageable);
         }
+
         return tournaments.stream()
                 .map(tournamentMapper::toDto)
+                .map(t -> {
+                    t.setParticipants(participationRepository.countByTournamentId(t.getId()));
+                    return t;
+                })
                 .toList();
     }
 
-    // DEVUELVE UN SOLO TORNEO CON SUS DATOS ( FALTA LA CANTIDAD DE
-    // PARTICIPANTES INSCRIPTOS)
+    // DEVUELVE UN SOLO TORNEO CON SUS DATOS
     public TournamentDetailResponseDTO findTournamentById(Long id) {
         Optional<Tournament> optionalTournament = tournamentRepository.findById(id);
         if (optionalTournament.isEmpty()) {
             // throw new Error("El torneo no existe");
             return null;
         }
+
         return tournamentMapper.toDetailDto(optionalTournament.get());
     }
 
-    // CREA UN TORNEO (SOLO ADMIN)
+    // CREA UN TORNEO (FALTA CONTROLAR QUE SEA SOLO ADMIN)
     public TournamentCreatedResponseDTO createTournament(TournamentRequestDTO tournament) {
         Tournament tournamentRequest = tournamentMapper.toEntity(tournament);
 
@@ -124,7 +145,66 @@ public class TournamentService {
         return tournamentMapper.toCreatedDto(savedTournament);
     }
 
-    // FALTA LA INSCRIPCION DE UN USUARIO A UN TORNEO
+    // PERMITE A UN USUARIO UNIRSE A UN TORNEO
+    // EN EL REQUEST VIENE EL ID, PERO EN REALIDAD PRIMERO SE COMPRUEBA QUE PUEDE
+    // ACCEDER A ESTA PARTE CON EL TOKEN
+    // CON LO QUE SI LLEGA HASTA AQUI ES PORQUE SI EXISTE Y PUEDE
+    public TournamentJoinResponseDTO joinTournament(Long idTorneo, TournamentJoinRequestDTO request) {
+        Optional<Tournament> tournamentOptional = tournamentRepository.findById(idTorneo);
+        if (!tournamentOptional.isPresent()) {
+            throw new IllegalArgumentException("Torneo no encontrado");
+        }
+        // En el request trae el userId pero en realidad deberia hacerse por
+        // autenticacion. CORREGIR
+        Optional<User> userOptional = userRepository.findById(request.getUserId());
+        if (!userOptional.isPresent()) {
+            throw new IllegalArgumentException("Usuario no encontrado");
+        }
+
+        Tournament tournament = tournamentOptional.get();
+        User user = userOptional.get();
+
+        // validacion de que se esta inscribiendo dentro del rango permitido de fechas
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isBefore(tournament.getRegistrationOpenAt()) || now.isAfter(tournament.getRegistrationCloseAt())) {
+            throw new IllegalArgumentException("No es posible realizar la inscripción");
+        }
+
+        // validar que hay plazas disponibles
+        Integer currentParticipants = participationRepository.countByTournamentId(idTorneo);
+        Integer maxParticipants = tournament.getMaxParticipants();
+
+        if (maxParticipants != null && currentParticipants >= maxParticipants) {
+            throw new IllegalArgumentException("No es posible inscribirse, no hay plazas disponibles");
+        }
+
+        // Asegurarse que el usuario no esté ya inscrito
+        if (participationRepository.existsByTournamentIdAndUserId(tournament.getId(), request.getUserId())) {
+            throw new IllegalArgumentException("Ya estás inscrito en este torneo");
+        }
+
+        TournamentParticipation participation = participationMapper.toEntity(request);
+        participation.setTournament(tournament);
+        participation.setUser(user);
+        participation.setRegisteredAt(LocalDateTime.now());
+
+        TournamentParticipation saved = participationRepository.save(participation);
+
+        return participationMapper.toResponseDTO(saved);
+
+    }
+
+    // ELIMINAR TORNEO POR ID
+    public void deleteTournament(Long id) {
+
+        if (!tournamentRepository.existsById(id)) {
+            throw new RuntimeException("El torneo con ID " + id + " no existe");
+        }
+        if (participationRepository.countByTournamentId(id) > 0) {
+            throw new RuntimeException("No es posible borrar este torneo, tiene participantes inscriptos");
+        }
+        tournamentRepository.deleteById(id);
+    }
 
     // VALIDAR FECHAS
     public boolean validateDate(LocalDateTime dateInit, LocalDateTime dateEnd) {
