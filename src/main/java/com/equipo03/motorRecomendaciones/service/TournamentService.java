@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import com.equipo03.motorRecomendaciones.dto.TournamentRequestDTO;
 import com.equipo03.motorRecomendaciones.dto.TournamentResponseDTO;
+import com.equipo03.motorRecomendaciones.exception.BadRequestException;
+import com.equipo03.motorRecomendaciones.exception.ResourceNotFoundException;
 import com.equipo03.motorRecomendaciones.dto.TournamentCreatedResponseDTO;
 import com.equipo03.motorRecomendaciones.dto.TournamentDetailResponseDTO;
 import com.equipo03.motorRecomendaciones.dto.TournamentJoinRequestDTO;
@@ -75,7 +77,7 @@ public class TournamentService {
             try {
                 tournamentStatus = TournamentStatus.valueOf(status.trim().toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException(
+                throw new BadRequestException(
                         "El estado '" + status + "' no es válido. Valores permitidos: UPCOMING, OPEN, CLOSED");
             }
         }
@@ -117,8 +119,7 @@ public class TournamentService {
     public TournamentDetailResponseDTO findTournamentById(Long id) {
         Optional<Tournament> optionalTournament = tournamentRepository.findById(id);
         if (optionalTournament.isEmpty()) {
-            // throw new Error("El torneo no existe");
-            return null;
+            throw new ResourceNotFoundException("El torneo no existe");
         }
 
         return tournamentMapper.toDetailDto(optionalTournament.get());
@@ -129,16 +130,16 @@ public class TournamentService {
         Tournament tournamentRequest = tournamentMapper.toEntity(tournament);
 
         if (tournamentRepository.findByName(tournamentRequest.getName()).isPresent()) {
-            throw new IllegalArgumentException("Ya existe un torneo con ese nombre");
+            throw new BadRequestException("Ya existe un torneo con ese nombre");
         }
         if (!this.validateDate(tournamentRequest.getStartDate(), tournamentRequest.getEndDate())) {
-            throw new IllegalArgumentException("fechas del torneo inválidas");
+            throw new BadRequestException("fechas del torneo inválidas");
         }
         if (!this.validateDate(tournamentRequest.getRegistrationOpenAt(), tournamentRequest.getRegistrationCloseAt())) {
-            throw new IllegalArgumentException("fechas de inscripción al torneo inválidas");
+            throw new BadRequestException("fechas de inscripción al torneo inválidas");
         }
         if (tournamentRequest.getRegistrationOpenAt().isAfter(tournamentRequest.getStartDate())) {
-            throw new IllegalArgumentException("El cierre de inscripción no puede ser después del inicio del torneo");
+            throw new BadRequestException("El cierre de inscripción no puede ser después del inicio del torneo");
         }
         tournamentRequest.setCreatedAt(LocalDateTime.now());
         Tournament savedTournament = tournamentRepository.save(tournamentRequest);
@@ -152,13 +153,13 @@ public class TournamentService {
     public TournamentJoinResponseDTO joinTournament(Long idTorneo, TournamentJoinRequestDTO request) {
         Optional<Tournament> tournamentOptional = tournamentRepository.findById(idTorneo);
         if (!tournamentOptional.isPresent()) {
-            throw new IllegalArgumentException("Torneo no encontrado");
+            throw new ResourceNotFoundException("Torneo no encontrado");
         }
         // En el request trae el userId pero en realidad deberia hacerse por
         // autenticacion. CORREGIR
         Optional<User> userOptional = userRepository.findById(request.getUserId());
         if (!userOptional.isPresent()) {
-            throw new IllegalArgumentException("Usuario no encontrado");
+            throw new ResourceNotFoundException("Usuario no encontrado");
         }
 
         Tournament tournament = tournamentOptional.get();
@@ -167,7 +168,7 @@ public class TournamentService {
         // validacion de que se esta inscribiendo dentro del rango permitido de fechas
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(tournament.getRegistrationOpenAt()) || now.isAfter(tournament.getRegistrationCloseAt())) {
-            throw new IllegalArgumentException("No es posible realizar la inscripción");
+            throw new BadRequestException("No es posible realizar la inscripción");
         }
 
         // validar que hay plazas disponibles
@@ -175,12 +176,12 @@ public class TournamentService {
         Integer maxParticipants = tournament.getMaxParticipants();
 
         if (maxParticipants != null && currentParticipants >= maxParticipants) {
-            throw new IllegalArgumentException("No es posible inscribirse, no hay plazas disponibles");
+            throw new BadRequestException("No es posible inscribirse, no hay plazas disponibles");
         }
 
         // Asegurarse que el usuario no esté ya inscrito
         if (participationRepository.existsByTournamentIdAndUserId(tournament.getId(), request.getUserId())) {
-            throw new IllegalArgumentException("Ya estás inscrito en este torneo");
+            throw new BadRequestException("Ya estás inscrito en este torneo");
         }
 
         TournamentParticipation participation = participationMapper.toEntity(request);
@@ -198,10 +199,10 @@ public class TournamentService {
     public void deleteTournament(Long id) {
 
         if (!tournamentRepository.existsById(id)) {
-            throw new RuntimeException("El torneo con ID " + id + " no existe");
+            throw new ResourceNotFoundException("El torneo con ID " + id + " no existe");
         }
         if (participationRepository.countByTournamentId(id) > 0) {
-            throw new RuntimeException("No es posible borrar este torneo, tiene participantes inscriptos");
+            throw new BadRequestException("No es posible borrar este torneo, tiene participantes inscritos");
         }
         tournamentRepository.deleteById(id);
     }

@@ -6,73 +6,111 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.equipo03.motorRecomendaciones.dto.TournamentCreatedResponseDTO;
-import com.equipo03.motorRecomendaciones.dto.TournamentDetailResponseDTO;
-import com.equipo03.motorRecomendaciones.dto.TournamentJoinRequestDTO;
-import com.equipo03.motorRecomendaciones.dto.TournamentJoinResponseDTO;
-import com.equipo03.motorRecomendaciones.dto.TournamentRequestDTO;
-import com.equipo03.motorRecomendaciones.dto.TournamentResponseDTO;
+import com.equipo03.motorRecomendaciones.dto.*;
 import com.equipo03.motorRecomendaciones.service.TournamentService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/tournaments")
 public class TournamentController {
 
-    @Autowired
-    private TournamentService tournamentService;
+        @Autowired
+        private TournamentService tournamentService;
 
-    @GetMapping
-    public ResponseEntity<List<TournamentResponseDTO>> getTournaments(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size,
-            @RequestParam(required = false) String sort,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String game,
-            @RequestParam(required = false) String q) {
+        // GET /api/tournaments
+        @Operation(summary = "Obtener lista de torneos", description = "Devuelve todos los torneos con filtros opcionales: page, size, sort, status, game, q.")
+        @ApiResponse(responseCode = "200", description = "Lista de torneos obtenida correctamente")
+        @GetMapping
+        public ResponseEntity<List<TournamentResponseDTO>> getTournaments(
+                        @Parameter(description = "Número de página") @RequestParam(required = false) Integer page,
+                        @Parameter(description = "Cantidad de elementos por página") @RequestParam(required = false) Integer size,
+                        @Parameter(description = "Campo por el cual ordenar") @RequestParam(required = false) String sort,
+                        @Parameter(description = "Filtrar por estado del torneo") @RequestParam(required = false) String status,
+                        @Parameter(description = "Filtrar por juego") @RequestParam(required = false) String game,
+                        @Parameter(description = "Búsqueda general por nombre") @RequestParam(required = false) String q) {
 
-        List<TournamentResponseDTO> tournaments = tournamentService.getTournaments(
-                page, size, sort, status, game, q);
+                List<TournamentResponseDTO> tournaments = tournamentService.getTournaments(
+                                page, size, sort, status, game, q);
 
-        return ResponseEntity.ok(tournaments);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getTournamentById(@PathVariable Long id) {
-        TournamentDetailResponseDTO dto = tournamentService.findTournamentById(id);
-        if (dto == null) {
-            return ResponseEntity.status(404).body("El torneo no existe");
+                return ResponseEntity.ok(tournaments);
         }
-        return ResponseEntity.ok(dto);
-    }
 
-    // Hay que revisar que solo pueda hacerlo un admin
-    @PostMapping
-    public ResponseEntity<TournamentCreatedResponseDTO> createTournament(
-            @RequestBody TournamentRequestDTO dto) {
+        // GET /api/tournaments/{id}
+        @Operation(summary = "Obtener detalles de un torneo", description = "Devuelve información completa del torneo, incluyendo participantes.")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Torneo encontrado"),
+                        @ApiResponse(responseCode = "404", description = "El torneo no existe")
+        })
+        @GetMapping("/{id}")
+        public ResponseEntity<?> getTournamentById(
+                        @Parameter(description = "ID del torneo", required = true) @PathVariable Long id) {
 
-        TournamentCreatedResponseDTO created = tournamentService.createTournament(dto);
-        return ResponseEntity.status(201).body(created);
-    }
+                return ResponseEntity.ok(
+                                tournamentService.findTournamentById(id));
+        }
 
-    // Hay que revisar que se autentique el usuario, por el momento mandare su id en
-    // el body
-    @PostMapping("/{id}/join")
-    public ResponseEntity<TournamentJoinResponseDTO> join(
-            @PathVariable Long id,
-            @RequestBody(required = false) TournamentJoinRequestDTO request) {
+        // POST /api/tournaments
+        @Operation(summary = "Crear un nuevo torneo", description = "Crea un torneo. Solo para administradores.")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "201", description = "Torneo creado correctamente", content = @Content(schema = @Schema(implementation = TournamentResponseDTO.class))),
 
-        if (request == null)
-            request = new TournamentJoinRequestDTO();
+                        @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content(schema = @Schema(implementation = ApiError.class))),
 
-        TournamentJoinResponseDTO response = tournamentService.joinTournament(id, request);
+                        @ApiResponse(responseCode = "404", description = "Recurso no encontrado", content = @Content(schema = @Schema(implementation = ApiError.class))),
 
-        return ResponseEntity.ok(response);
-    }
+                        @ApiResponse(responseCode = "409", description = "Conflicto (por ejemplo, torneo ya existe)", content = @Content(schema = @Schema(implementation = ApiError.class))),
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        tournamentService.deleteTournament(id);
-        return ResponseEntity.noContent().build();
-    }
+                        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(schema = @Schema(implementation = ApiError.class)))
+        })
+        @PostMapping
+        public ResponseEntity<TournamentCreatedResponseDTO> createTournament(
+                        @Parameter(description = "Datos del torneo a crear", required = true) @Valid @RequestBody TournamentRequestDTO dto) {
+
+                TournamentCreatedResponseDTO created = tournamentService.createTournament(dto);
+                return ResponseEntity.status(201).body(created);
+        }
+
+        // POST /api/tournaments/{id}/join
+        @Operation(summary = "Unirse a un torneo", description = "Permite a un jugador inscribirse en un torneo existente.")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Inscripción completada"),
+                        @ApiResponse(responseCode = "400", description = "Fuera del intervalo de inscripción o datos inválidos"),
+                        @ApiResponse(responseCode = "404", description = "Torneo o usuario no encontrado"),
+                        @ApiResponse(responseCode = "409", description = "El usuario ya está inscrito")
+        })
+        @PostMapping("/{id}/join")
+        public ResponseEntity<TournamentJoinResponseDTO> join(
+                        @Parameter(description = "ID del torneo", required = true) @PathVariable Long id,
+                        // MANDO EL ID DEL USUARIO POR EL BODY HASTA QUE ESTE LA PARTE DE SEGURIDAD
+                        // HECHA, CORREGIR!
+                        @Parameter(description = "Opcional: contiene idUsuario nickname", required = false) @RequestBody(required = false) TournamentJoinRequestDTO request) {
+
+                if (request == null)
+                        request = new TournamentJoinRequestDTO();
+
+                TournamentJoinResponseDTO response = tournamentService.joinTournament(id, request);
+                return ResponseEntity.ok(response);
+        }
+
+        // DELETE /api/tournaments/{id}
+        @Operation(summary = "Eliminar un torneo", description = "Elimina un torneo por su ID. Solo administradores.")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "204", description = "Torneo eliminado"),
+                        @ApiResponse(responseCode = "404", description = "Torneo no encontrado")
+        })
+        @DeleteMapping("/{id}")
+        public ResponseEntity<Void> delete(
+                        @Parameter(description = "ID del torneo a eliminar", required = true) @PathVariable Long id) {
+
+                tournamentService.deleteTournament(id);
+                return ResponseEntity.noContent().build();
+        }
 
 }
