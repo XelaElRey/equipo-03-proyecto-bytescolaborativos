@@ -24,6 +24,8 @@ spring:
     default-property-inclusion: non_null
 server:
   port: 8080
+  error:
+    include-stacktrace: never
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}

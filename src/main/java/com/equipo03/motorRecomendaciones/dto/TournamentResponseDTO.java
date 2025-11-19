@@ -10,13 +10,13 @@ public class TournamentResponseDTO {
     @Schema(description = "ID del torneo", example = "12")
     private Long id;
 
-    @Schema(description = "Nombre del torneo", example = "Pro League 2025")
+    @Schema(description = "Nombre del torneo", example = "Torneo Pro League 2025")
     private String name;
 
-    @Schema(description = "Juego del torneo", example = "Valorant")
+    @Schema(description = "Juego del torneo", example = "League of Legends")
     private String game;
 
-    @Schema(description = "Estado actual del torneo", example = "OPEN")
+    @Schema(description = "Estado actual del torneo", example = "UPCOMING")
     private String status;
 
     @Schema(description = "Cantidad de participantes inscritos", example = "18")

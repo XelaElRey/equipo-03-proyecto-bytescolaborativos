@@ -40,7 +40,7 @@ public class Tournament {
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
-	private TournamentStatus status = TournamentStatus.OPEN;
+	private TournamentStatus status = TournamentStatus.UPCOMING;
 
 	private Integer maxParticipants;
 

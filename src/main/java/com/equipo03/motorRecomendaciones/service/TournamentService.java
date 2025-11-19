@@ -168,7 +168,7 @@ public class TournamentService {
         // validacion de que se esta inscribiendo dentro del rango permitido de fechas
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(tournament.getRegistrationOpenAt()) || now.isAfter(tournament.getRegistrationCloseAt())) {
-            throw new BadRequestException("No es posible realizar la inscripción");
+            throw new BadRequestException("Estas intenando inscribirte fuera del rango de fechas de inscripción");
         }
 
         // validar que hay plazas disponibles
