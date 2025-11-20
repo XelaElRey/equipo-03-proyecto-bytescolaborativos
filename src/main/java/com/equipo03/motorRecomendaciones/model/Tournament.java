@@ -21,27 +21,18 @@ public class Tournament {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@NotNull(message = "El nombre es obligatorio")
 	private String name;
 
 	private String game;
 
 	private String rules;
 
-	@NotNull(message = "La fecha de inicio es obligatoria")
-	@Future(message = "La fecha de inicio debe ser futura")
 	private LocalDateTime startDate;
 
-	@NotNull(message = "La fecha de fin es obligatoria")
-	@Future(message = "La fecha de fin debe ser futura")
 	private LocalDateTime endDate;
 
-	@NotNull(message = "La fecha de inicio de inscripción es obligatoria")
-	@Future(message = "La fecha de inicio de inscripción debe ser futura")
 	private LocalDateTime registrationOpenAt;
 
-	@NotNull(message = "La fecha de cierre de inscripción es obligatoria")
-	@Future(message = "La fecha de cierre de inscripción debe ser futura")
 	private LocalDateTime registrationCloseAt;
 
 	@Column(updatable = false)
@@ -49,7 +40,7 @@ public class Tournament {
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
-	private TournamentStatus status = TournamentStatus.OPEN;
+	private TournamentStatus status = TournamentStatus.UPCOMING;
 
 	private Integer maxParticipants;
 
