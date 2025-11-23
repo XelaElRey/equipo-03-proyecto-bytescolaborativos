@@ -6,11 +6,11 @@
 -- ================================
 -- Tabla: users
 -- ================================
-INSERT INTO users (id, username, email, password, role, created_at) VALUES
-('11111111-1111-1111-1111-111111111111', 'Alex', 'Alex@recomendaciones.com', '$2a$12$xyDXamT1EKRxSsqZenHV0.NOUDL.YPB7dGF309j0NOtSbB1jsrCPa','ADMIN', now()),
-('22222222-2222-2222-2222-222222222222', 'Lucas', 'Lucas@recomendaciones.com', '$2a$12$xyDXamT1EKRxSsqZenHV0.NOUDL.YPB7dGF309j0NOtSbB1jsrCPa', 'PLAYER', now()),
-('33333333-3333-3333-3333-333333333333', 'Ruddy', 'Ruddy@recomendaciones.com', '$2a$12$xyDXamT1EKRxSsqZenHV0.NOUDL.YPB7dGF309j0NOtSbB1jsrCPa','ADMIN', now()),
-('44444444-4444-4444-4444-444444444444', 'Juan', 'Juan@recomendaciones.com', '$2a$12$xyDXamT1EKRxSsqZenHV0.NOUDL.YPB7dGF309j0NOtSbB1jsrCPa','PLAYER', now());
+INSERT INTO users (id, username, email, password, role, active, created_at) VALUES
+('11111111-1111-1111-1111-111111111111', 'Alex', 'Alex@recomendaciones.com', '$2a$12$xyDXamT1EKRxSsqZenHV0.NOUDL.YPB7dGF309j0NOtSbB1jsrCPa','ADMIN',true,now()),
+('22222222-2222-2222-2222-222222222222', 'Lucas', 'Lucas@recomendaciones.com', '$2a$12$xyDXamT1EKRxSsqZenHV0.NOUDL.YPB7dGF309j0NOtSbB1jsrCPa', 'PLAYER',true,now()),
+('33333333-3333-3333-3333-333333333333', 'Ruddy', 'Ruddy@recomendaciones.com', '$2a$12$xyDXamT1EKRxSsqZenHV0.NOUDL.YPB7dGF309j0NOtSbB1jsrCPa','ADMIN', true,now()),
+('44444444-4444-4444-4444-444444444444', 'Juan', 'Juan@recomendaciones.com', '$2a$12$xyDXamT1EKRxSsqZenHV0.NOUDL.YPB7dGF309j0NOtSbB1jsrCPa','PLAYER',true,now());
 -- ================================
 -- Tabla: product
 -- ================================

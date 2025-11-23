@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-    //Obtener el usuario por su nombre
+    // Obtener el usuario por su nombre
     Optional<User> findByUsername(String username);
-    //Obtener el usuario por su email
+
+    // Obtener el usuario por su email
     Optional<User> findByEmail(String email);
 
 }

@@ -19,7 +19,7 @@ spring:
       continue-on-error: true
       data-locations: classpath:data.sql
       encoding: UTF-8
-
+    defer-datasource-initialization: true
   jackson:
     default-property-inclusion: non_null
 server:
