@@ -68,3 +68,4 @@ insert into product_recommendations(recommendation_id, product_id) values
 ('33333333-3333-3333-3333-333333333333', 'a5555555-aaaa-5555-aaaa-555555555555'),
 ('44444444-4444-4444-4444-444444444444', 'a4444444-aaaa-4444-aaaa-444444444444');
 
+
