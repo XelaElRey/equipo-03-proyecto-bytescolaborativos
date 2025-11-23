@@ -7,7 +7,7 @@ import com.equipo03.motorRecomendaciones.dto.TournamentJoinRequestDTO;
 import com.equipo03.motorRecomendaciones.dto.TournamentJoinResponseDTO;
 import com.equipo03.motorRecomendaciones.model.TournamentParticipation;
 
-@Mapper(componentModel = "spring")
+@Mapper(config = MapperConfiguration.class)
 public interface ParticipationMapper {
 
     @Mapping(target = "id", ignore = true)

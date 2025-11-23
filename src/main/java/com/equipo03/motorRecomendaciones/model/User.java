@@ -5,6 +5,9 @@ import java.time.Instant;
 import java.util.*;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Entity
 @Table(name = "users")
@@ -15,7 +18,7 @@ import lombok.*;
 /**
  * Entidad que representa un usuario.
  */
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,6 +36,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false)
+    private boolean active;
+
     @Column(nullable = false, updatable = false)
     private final Instant createdAt = Instant.now();
 
@@ -46,4 +52,43 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<TournamentParticipation> participations = new ArrayList<>();
+
+    
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities(){
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired(){
+        return active;
+    }
+
+   @Override
+  public boolean isAccountNonLocked() {
+    return active;
+  }
+
+
+    @Override 
+    public boolean isCredentialsNonExpired(){
+        return active;
+    }
+
+    @Override
+    public boolean isEnabled(){
+        return active;
+    }
+
+    @Override
+    public String getUsername(){
+        return this.username;
+    }
+
+    @Override 
+    public String getPassword(){
+        return this.password;
+    }
 }
+
