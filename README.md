@@ -54,7 +54,7 @@ Representa una recomendación generada por el motor, asociada a múltiples produ
 - **Product 1:N Ratings**  
   Un producto puede recibir valoraciones de muchos usuarios.
 
-- **Ratings N:N Recommendations**  
+- **Product N:N Recommendations**  
   Las recomendaciones se generan a partir de valoraciones combinadas.  
   Para ello existe una tabla intermedia:
 
