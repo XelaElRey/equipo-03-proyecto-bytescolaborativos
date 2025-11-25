@@ -37,3 +37,10 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     display-request-duration: true
+
+recommendation:
+  tag-weight: 2.0
+  rating-weight: 1.5
+  popularity-weight: 0.5
+  default-limit: 10
+  positive-rating-threshold: 4

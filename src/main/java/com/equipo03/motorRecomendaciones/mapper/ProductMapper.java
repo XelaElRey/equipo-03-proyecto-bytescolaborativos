@@ -1,5 +1,7 @@
 package com.equipo03.motorRecomendaciones.mapper;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -12,5 +14,7 @@ public interface ProductMapper {
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
 
     ProductDTO toDTO(Product product);
+
+    List<ProductDTO> toProductDTOList(List<Product> products);
 
 }
