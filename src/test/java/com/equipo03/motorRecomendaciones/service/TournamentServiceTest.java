@@ -1,4 +1,4 @@
-package com.equipo03.motorRecomendaciones;
+package com.equipo03.motorRecomendaciones.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
