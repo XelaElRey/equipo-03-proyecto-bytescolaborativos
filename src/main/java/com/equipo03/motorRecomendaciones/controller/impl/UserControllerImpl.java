@@ -2,7 +2,6 @@ package com.equipo03.motorRecomendaciones.controller.impl;
 
 import java.util.List;
 import java.util.UUID;
-import org.apache.catalina.connector.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,7 +19,6 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -49,8 +47,8 @@ public class UserControllerImpl {
     @PostMapping("/login")
     @ApiResponse
     @Operation(summary = "Iniciar sesión de un usuario", description = "Inicia sesión de un usuario con los datos proporcionados y devuelve un token JWT del usuario")
-    
-    public ResponseEntity<String> loginUser(@Valid  @RequestBody LoginRequestDto loginRequest) {
+
+    public ResponseEntity<String> loginUser(@Valid @RequestBody LoginRequestDto loginRequest) {
         return ResponseEntity.ok(userService.loginUser(loginRequest));
     }
 
@@ -59,11 +57,9 @@ public class UserControllerImpl {
      * 
      */
     @ApiResponse
-    @Operation(summary = "Registrar un usuario admin",
-            description = "Registrar un usuario administrador y devolver su token JWT"
-    )
+    @Operation(summary = "Registrar un usuario admin", description = "Registrar un usuario administrador y devolver su token JWT")
     @PostMapping("/register/admin")
-    public ResponseEntity<String> registerAdmin(@Valid @RequestBody UserRequestDto userRequestDto){
+    public ResponseEntity<String> registerAdmin(@Valid @RequestBody UserRequestDto userRequestDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerAdmin(userRequestDto));
     }
 
@@ -82,7 +78,7 @@ public class UserControllerImpl {
 
     @GetMapping("/user/{email}")
     public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
-       return ResponseEntity.ok(userService.getUserByEmail(email));
+        return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
     @DeleteMapping("/{id}")
@@ -92,5 +88,4 @@ public class UserControllerImpl {
         userService.deleteUser(uuid);
         return ResponseEntity.noContent().build();
     }
-
 }

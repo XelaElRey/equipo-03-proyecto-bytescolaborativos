@@ -22,8 +22,10 @@ import jakarta.servlet.http.HttpServletResponse;
  * -Define los beans necesarios para la seguridad.
  * {PasswordEncoder, SecurityFilterChain,AuthenticationManager}
  * -Configura las reglas de seguridad HTTP.
- * {rutas públicas y protegidas, filtros de seguridad, gestión de sesiones, CSRF}
- * -Añadimos filtros de seguridad personalizados para la autentiación y autorización mediante JWT.
+ * {rutas públicas y protegidas, filtros de seguridad, gestión de sesiones,
+ * CSRF}
+ * -Añadimos filtros de seguridad personalizados para la autentiación y
+ * autorización mediante JWT.
  * 
  * @author Alex
  */
@@ -32,40 +34,41 @@ import jakarta.servlet.http.HttpServletResponse;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-
-    @Bean 
-    public PasswordEncoder passwordEncoder(){
+    @Bean
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(CustomUserDetailsService userDetailsService){
-      DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-      authProvider.setUserDetailsService(userDetailsService);
-      authProvider.setPasswordEncoder(passwordEncoder());
-      return new ProviderManager(authProvider);
+    public AuthenticationManager authenticationManager(CustomUserDetailsService userDetailsService) {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(authProvider);
     }
 
-    @Bean 
-    public JwtAuthorizationFilter jwtAuthorizationFilter(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService){
+    public JwtAuthorizationFilter jwtAuthorizationFilter(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService) {
         return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
     }
 
-    @Bean 
-    public CompromisedPasswordChecker compromisedPasswordChecker(){
+    @Bean
+    public CompromisedPasswordChecker compromisedPasswordChecker() {
         return new HaveIBeenPwnedRestApiPasswordChecker();
     }
 
-    @Bean 
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthorizationFilter jwtAuthorizationFilter)
             throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        //Rutas públicas
-                        .requestMatchers("/api/auth/**").permitAll()
-                        //Cualquier otra ruta requiere autenticación
+                        // Rutas públicas
+                        .requestMatchers("/api/auth/login", "/api/auth/register",
+                                "/swagger-ui/**", "/swagger-ui.html",
+                                "/api-docs", "/api-docs/**")
+                        .permitAll()
+                        // Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
@@ -76,4 +79,5 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 }

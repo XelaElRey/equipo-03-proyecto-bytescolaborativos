@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class RatingRequestDTO {
-    private UUID userId;
     private UUID productId;
     private int score;
 }

@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.ToString;
 import java.util.UUID;
 
+import com.equipo03.motorRecomendaciones.model.enums.Role;
+
 @Data
 @Builder
 @ToString
@@ -37,11 +39,9 @@ public class UserDTO {
 
     @Schema(description = "Rol del usuario en el sistema")
     @NotNull
-    private String role;
+    private Role role;
 
     @Schema(description = "Indica si el usuario está activo")
-    @NotNull    
+    @NotNull
     private boolean active;
 }
-
-

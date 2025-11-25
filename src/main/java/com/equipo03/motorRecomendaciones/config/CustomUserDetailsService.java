@@ -35,17 +35,22 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
         User userEntity = userRepository
                 .findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "No se encontrado el usuario con el nombre de usaurio: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario: " + username));
+
+        if (userEntity.getRole() == null) {
+            throw new UsernameNotFoundException("Usuario sin rol asignado: " + username);
+        }
+
+        String roleName = "ROLE_" + userEntity.getRole().name();
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(userEntity.getUsername())
                 .password(userEntity.getPassword())
-                .roles(userEntity.getRole().toString())
-                .disabled(!userEntity.isEnabled())
+                .authorities(roleName)
+                .disabled(!userEntity.isActive())
                 .build();
     }
+
 }

@@ -12,6 +12,8 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,10 +29,13 @@ public class RatingController {
             @ApiResponse(responseCode = "400", description = "Error en la solicitud (score inválido o usuario ya valoró)"),
             @ApiResponse(responseCode = "404", description = "Usuario o producto no encontrado")
     })
-
     @PostMapping
-    public ResponseEntity<RatingResponseDTO> createRating(@RequestBody RatingRequestDTO request) {
-        RatingResponseDTO response = ratingService.setRating(request.getUserId(), request.getProductId(),
+    @PreAuthorize("hasRole('PLAYER')")
+    public ResponseEntity<RatingResponseDTO> createRating(@RequestBody RatingRequestDTO request,
+            Authentication authentication) {
+
+        String username = authentication.getName();
+        RatingResponseDTO response = ratingService.setRating(username, request.getProductId(),
                 request.getScore());
         return ResponseEntity.ok(response);
     }

@@ -34,6 +34,7 @@ public class User implements UserDetails {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     @Column(nullable = false)
@@ -53,42 +54,38 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<TournamentParticipation> participations = new ArrayList<>();
 
-    
-
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities(){
-        return List.of(new SimpleGrantedAuthority(role.name()));
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
-    public boolean isAccountNonExpired(){
-        return active;
-    }
-
-   @Override
-  public boolean isAccountNonLocked() {
-    return active;
-  }
-
-
-    @Override 
-    public boolean isCredentialsNonExpired(){
+    public boolean isAccountNonExpired() {
         return active;
     }
 
     @Override
-    public boolean isEnabled(){
+    public boolean isAccountNonLocked() {
         return active;
     }
 
     @Override
-    public String getUsername(){
+    public boolean isCredentialsNonExpired() {
+        return active;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return active;
+    }
+
+    @Override
+    public String getUsername() {
         return this.username;
     }
 
-    @Override 
-    public String getPassword(){
+    @Override
+    public String getPassword() {
         return this.password;
     }
 }
-

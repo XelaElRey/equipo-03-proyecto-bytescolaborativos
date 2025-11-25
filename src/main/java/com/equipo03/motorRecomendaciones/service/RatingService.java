@@ -38,19 +38,19 @@ public class RatingService {
     // Además le agrego la anotacion @Transactional para que al crear un nuevo
     // Rating y recalcular el promedio sea atomico
     @Transactional
-    public RatingResponseDTO setRating(UUID userId, UUID productId, int score) {
+    public RatingResponseDTO setRating(String username, UUID productId, int score) {
 
         if (score < 1 || score > 5) {
             throw new BadRequestException("La valoración tiene que estar entre 1 y 5");
         }
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("El usuario no existe"));
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("El producto no existe"));
 
-        if (ratingRepository.existsByUserIdAndProductId(userId, productId)) {
+        if (ratingRepository.existsByUserIdAndProductId(user.getId(), productId)) {
             throw new BadRequestException("El usuario ya valoro este producto");
         }
 

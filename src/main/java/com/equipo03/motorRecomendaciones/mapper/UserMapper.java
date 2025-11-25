@@ -10,7 +10,6 @@ import com.equipo03.motorRecomendaciones.model.User;
 @Mapper(config = MapperConfiguration.class)
 public interface UserMapper {
 
-
     /**
      * Convierte una entidad User en un objeto UserDTO para las respuestas de la API
      */
@@ -18,6 +17,7 @@ public interface UserMapper {
 
     /**
      * Convierte un objeto UserDTO en una entidad User
+     * 
      * @param userDTO
      * @return entidad User
      * @throws IllegalArgumentException
@@ -32,7 +32,6 @@ public interface UserMapper {
      */
     List<User> userDTOListToUserList(List<UserDTO> listUserDTO);
 
-
     /**
      * 
      * @param listUser
@@ -40,8 +39,7 @@ public interface UserMapper {
      */
     List<UserDTO> userListToUserDtoList(List<User> listUser);
 
-
-    @Mapping(target = "role", constant = "PLAYER")
+    @Mapping(target = "role", expression = "java(com.equipo03.motorRecomendaciones.model.enums.Role.PLAYER)")
     @Mapping(target = "active", constant = "true")
     UserDTO defaultUserDTO(UserRequestDto userRequestDTO);
 }
