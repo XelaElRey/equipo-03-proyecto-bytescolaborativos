@@ -1,13 +1,11 @@
 package com.equipo03.motorRecomendaciones.service;
 
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.equipo03.motorRecomendaciones.exception.ResourceNotFoundException;
 import com.equipo03.motorRecomendaciones.mapper.RatingMapper;
-import com.equipo03.motorRecomendaciones.dto.RatingResponseDTO;
+import com.equipo03.motorRecomendaciones.dto.response.RatingResponseDTO;
 import com.equipo03.motorRecomendaciones.exception.BadRequestException;
 import com.equipo03.motorRecomendaciones.model.Product;
 import com.equipo03.motorRecomendaciones.model.Rating;

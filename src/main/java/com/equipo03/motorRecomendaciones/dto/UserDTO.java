@@ -15,11 +15,11 @@ import com.equipo03.motorRecomendaciones.model.enums.Role;
 @Data
 @Builder
 @ToString
-@Schema(description = "DTO que representa la información de un usuario")
+@Schema(description = "DTO que representa la información de un usuario sin exponer la contraseña")
 public class UserDTO {
 
     @Schema(description = "Identificador único del usuario")
-    @NotBlank
+    @NotNull
     private UUID id;
 
     @Schema(description = "Nombre de usuario")
@@ -31,11 +31,6 @@ public class UserDTO {
     @Email
     @NotBlank
     private String email;
-
-    @Schema(description = "Contraseña del usuario")
-    @NotBlank
-    @Size(min = 6, max = 100)
-    private String password;
 
     @Schema(description = "Rol del usuario en el sistema")
     @NotNull

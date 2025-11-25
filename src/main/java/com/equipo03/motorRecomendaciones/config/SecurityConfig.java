@@ -68,15 +68,26 @@ public class SecurityConfig {
                                 "/swagger-ui/**", "/swagger-ui.html",
                                 "/api-docs", "/api-docs/**")
                         .permitAll()
+
+                        // Endpoints protegidos por rol
+                        .requestMatchers("/api/tournaments/**").hasRole("ADMIN")
+                        .requestMatchers("/api/ratings/**").hasRole("PLAYER")
+                        .requestMatchers("/recommendations/**").authenticated()
+
                         // Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated())
+
+                // Manejo de errores de autenticación
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
                             response.getWriter().write("{\"error\": \"No autorizado\"}");
                         }))
+
+                // Filtro JWT antes del filtro de autenticación de Spring
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

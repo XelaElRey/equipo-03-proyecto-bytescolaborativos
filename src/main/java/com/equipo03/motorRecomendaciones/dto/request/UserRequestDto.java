@@ -19,7 +19,7 @@ public class UserRequestDto {
     /**
      * El nombre de usuario del nuevo usuario debe tener entre 3 y 50 carácteres y no estar vacío.
      */
-    @Schema(description = "Nombre de usuario del nuevo usuario", example = "juan123", required = true)
+    @Schema(description = "Nombre de usuario del nuevo usuario", example = "juan123")
     @NotBlank
     @Size(min = 3, max = 50)
     private String username;
@@ -38,7 +38,7 @@ public class UserRequestDto {
      * 
      */
 
-    @Schema(description = "Contraseña del nuevo usuario", example = "Password123!", required = true)
+    @Schema(description = "Contraseña del nuevo usuario", example = "Password123!")
     @NotBlank
     @Size(min = 6, max = 100)
     private String password;

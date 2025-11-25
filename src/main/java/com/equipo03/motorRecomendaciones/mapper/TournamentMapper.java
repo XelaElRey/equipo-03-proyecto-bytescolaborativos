@@ -5,10 +5,10 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.equipo03.motorRecomendaciones.dto.TournamentCreatedResponseDTO;
-import com.equipo03.motorRecomendaciones.dto.TournamentDetailResponseDTO;
-import com.equipo03.motorRecomendaciones.dto.TournamentRequestDTO;
-import com.equipo03.motorRecomendaciones.dto.TournamentResponseDTO;
+import com.equipo03.motorRecomendaciones.dto.response.TournamentCreatedResponseDTO;
+import com.equipo03.motorRecomendaciones.dto.response.TournamentDetailResponseDTO;
+import com.equipo03.motorRecomendaciones.dto.request.TournamentRequestDTO;
+import com.equipo03.motorRecomendaciones.dto.response.TournamentResponseDTO;
 import com.equipo03.motorRecomendaciones.model.Tournament;
 import com.equipo03.motorRecomendaciones.model.TournamentParticipation;
 

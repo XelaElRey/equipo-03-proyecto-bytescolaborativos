@@ -1,4 +1,4 @@
-package com.equipo03.motorRecomendaciones.dto;
+package com.equipo03.motorRecomendaciones.dto.request;
 
 import java.util.UUID;
 import lombok.Data;

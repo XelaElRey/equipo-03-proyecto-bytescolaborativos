@@ -1,4 +1,4 @@
-package com.equipo03.motorRecomendaciones.dto;
+package com.equipo03.motorRecomendaciones.dto.request;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;

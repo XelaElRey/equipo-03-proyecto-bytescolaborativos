@@ -1,12 +1,12 @@
 package com.equipo03.motorRecomendaciones.mapper;
 
-import com.equipo03.motorRecomendaciones.dto.RatingRequestDTO;
-import com.equipo03.motorRecomendaciones.dto.RatingResponseDTO;
+import com.equipo03.motorRecomendaciones.dto.response.RatingResponseDTO;
+import com.equipo03.motorRecomendaciones.dto.request.RatingRequestDTO;
 import com.equipo03.motorRecomendaciones.model.Rating;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(config = MapperConfiguration.class)
 public interface RatingMapper {
 
     @Mapping(source = "user.id", target = "userId")
