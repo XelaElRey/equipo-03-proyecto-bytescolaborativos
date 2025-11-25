@@ -5,80 +5,78 @@ import org.springframework.security.core.Authentication;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+
+import java.security.Key;
 import java.util.Date;
 import org.springframework.stereotype.Component;
 
-/**
- * Clase encargada de generar token JWT. 
- * -Genera tokens JWT firmados con una clave secreta.
- * -Valida tokens JWT y extrae información de estos.
- * 
- * @author Alex
- */
 @Component
-public class JwtUtil{
+public class JwtUtil {
 
-    //Clave secreta para firmar tokens jwt
     @Value("${jwt.secret-key}")
     private String secret;
 
     @Value("${jwt.access-token-expiration}")
     private Long expiration;
 
-    /**
-     * Método encargado de generar un token JWT para un usuario autenticado.
-     * 1-Extrae el nomnbre de usuario del objeto de autenticación pasado por parámetro.
-     * 2-Genera un token con el nombre usuario,la fecha de creación y la fecha de expiración.
-     * 3-Firmamos el token con la clave secreta utilizando el algoritmo de firma HS256.
-     * 4-Devolvemos el token generado.
-     * 
-     * @param auth
-     * @return token 
-     */
-   public String generateToken(Authentication auth) {
-    String username = auth.getName();
-    Date now = new Date();
-    Date exp = new Date(now.getTime() + expiration);
-    return Jwts.builder()
-        .setSubject(username)
-        .setIssuedAt(now)
-        .setExpiration(exp)
-        .signWith(SignatureAlgorithm.HS256, secret)
-        .compact();
-  }
-
-  /**
-   * Método encargado de obtener el nombre de usuario desde un token JWT.
-   * 1-Parseamos el token utilizando la clave secreta para validar su firma.
-   * 2-Extraemos el cuerpo del token (claims) y obtenemos el nombre de usuario (subject).
-   * 3-Devolvemos el nombre de usuario extraído.
-   * 
-   * @param token
-   * @return username
-   */
-    public String getUsernameFromJwt(String token){
-        
-        Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-        return claims.getSubject();
+    private Key getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /**
-     * Método encargado de validar un token JWT.
-     * 1-Intentamos parsear el token utilizando la clave secreta.
-     * 2-Si el parseo es exitoso, el token es válido y devolvemos true;
-     * 3-Si ocurre alguna excepción durante el parseo, el token no es válido y devolvemos false.
-     * 
-     * @retunr boolean
-     */
-    public boolean validateToken(String token){
-        try{
-            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+    public String generateToken(Authentication auth) {
+        String username = auth.getName();
+        String authority = auth.getAuthorities().stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Usuario sin rol asignado"))
+                .getAuthority();
+
+        String roleWithoutPrefix = authority.startsWith("ROLE_")
+                ? authority.substring(5)
+                : authority;
+
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + expiration);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .claim("role", roleWithoutPrefix)
+                .setIssuedAt(now)
+                .setExpiration(exp)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public String getUsernameFromJwt(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    public String getRoleFromToken(String token) {
+        return extractAllClaims(token).get("role", String.class);
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            extractAllClaims(token);
             return true;
-        }catch(Exception e){
+        } catch (Exception e) {
+            System.out.println("ERROR VALIDANDO TOKEN: " + e.getClass().getSimpleName() + " - " + e.getMessage());
             return false;
         }
+
     }
 
-    
-
+    public String getSecret() {
+        return secret;
+    }
 }

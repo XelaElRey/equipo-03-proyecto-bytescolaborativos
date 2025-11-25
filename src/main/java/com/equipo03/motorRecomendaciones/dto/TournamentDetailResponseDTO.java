@@ -3,8 +3,12 @@ package com.equipo03.motorRecomendaciones.dto;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Schema(description = "Detalle completo de un torneo, incluyendo participantes")
 public class TournamentDetailResponseDTO {

@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.equipo03.motorRecomendaciones.dto.TournamentRequestDTO;
 import com.equipo03.motorRecomendaciones.dto.TournamentResponseDTO;
 import com.equipo03.motorRecomendaciones.exception.BadRequestException;
@@ -133,7 +135,7 @@ public class TournamentService {
         if (!this.validateDate(tournamentRequest.getStartDate(), tournamentRequest.getEndDate())) {
             throw new BadRequestException("fechas del torneo inválidas");
         }
-        if (!this.validateDate(tournamentRequest.getRegistrationOpenAt(), tournamentRequest.getRegistrationCloseAt())) {
+        if (tournamentRequest.getRegistrationOpenAt().isAfter(tournamentRequest.getRegistrationCloseAt())||tournamentRequest.getRegistrationCloseAt().isBefore(LocalDateTime.now())) {
             throw new BadRequestException("fechas de inscripción al torneo inválidas");
         }
         if (tournamentRequest.getRegistrationOpenAt().isAfter(tournamentRequest.getStartDate())) {
@@ -145,31 +147,19 @@ public class TournamentService {
     }
 
     // PERMITE A UN USUARIO UNIRSE A UN TORNEO
-    // EN EL REQUEST VIENE EL ID, PERO EN REALIDAD PRIMERO SE COMPRUEBA QUE PUEDE
-    // ACCEDER A ESTA PARTE CON EL TOKEN
-    // CON LO QUE SI LLEGA HASTA AQUI ES PORQUE SI EXISTE Y PUEDE
-    public TournamentJoinResponseDTO joinTournament(Long idTorneo, TournamentJoinRequestDTO request) {
-        Optional<Tournament> tournamentOptional = tournamentRepository.findById(idTorneo);
-        if (!tournamentOptional.isPresent()) {
-            throw new ResourceNotFoundException("Torneo no encontrado");
-        }
-        // En el request trae el userId pero en realidad deberia hacerse por
-        // autenticacion. CORREGIR
-        Optional<User> userOptional = userRepository.findById(request.getUserId());
-        if (!userOptional.isPresent()) {
-            throw new ResourceNotFoundException("Usuario no encontrado");
-        }
+    @Transactional
+    public TournamentJoinResponseDTO joinTournament(Long idTorneo, String username, TournamentJoinRequestDTO request) {
+        Tournament tournament = tournamentRepository.findById(idTorneo)
+                .orElseThrow(() -> new ResourceNotFoundException("Torneo no encontrado"));
 
-        Tournament tournament = tournamentOptional.get();
-        User user = userOptional.get();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        // validacion de que se esta inscribiendo dentro del rango permitido de fechas
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(tournament.getRegistrationOpenAt()) || now.isAfter(tournament.getRegistrationCloseAt())) {
-            throw new BadRequestException("Estas intenando inscribirte fuera del rango de fechas de inscripción");
+            throw new BadRequestException("Estas intentando inscribirte fuera del rango de fechas de inscripción");
         }
 
-        // validar que hay plazas disponibles
         Integer currentParticipants = participationRepository.countByTournamentId(idTorneo);
         Integer maxParticipants = tournament.getMaxParticipants();
 
@@ -177,12 +167,11 @@ public class TournamentService {
             throw new BadRequestException("No es posible inscribirse, no hay plazas disponibles");
         }
 
-        // Asegurarse que el usuario no esté ya inscrito
-        if (participationRepository.existsByTournamentIdAndUserId(tournament.getId(), request.getUserId())) {
+        if (participationRepository.existsByTournamentIdAndUserId(tournament.getId(), user.getId())) {
             throw new BadRequestException("Ya estás inscrito en este torneo");
         }
 
-        TournamentParticipation participation = participationMapper.toEntity(request);
+        TournamentParticipation participation = new TournamentParticipation();
         participation.setTournament(tournament);
         participation.setUser(user);
         participation.setRegisteredAt(LocalDateTime.now());
@@ -190,7 +179,6 @@ public class TournamentService {
         TournamentParticipation saved = participationRepository.save(participation);
 
         return participationMapper.toResponseDTO(saved);
-
     }
 
     // ELIMINAR TORNEO POR ID
