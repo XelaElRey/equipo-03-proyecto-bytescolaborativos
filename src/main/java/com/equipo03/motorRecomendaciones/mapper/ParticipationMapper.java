@@ -2,9 +2,8 @@ package com.equipo03.motorRecomendaciones.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import com.equipo03.motorRecomendaciones.dto.TournamentJoinRequestDTO;
-import com.equipo03.motorRecomendaciones.dto.TournamentJoinResponseDTO;
+import com.equipo03.motorRecomendaciones.dto.request.TournamentJoinRequestDTO;
+import com.equipo03.motorRecomendaciones.dto.response.TournamentJoinResponseDTO;
 import com.equipo03.motorRecomendaciones.model.TournamentParticipation;
 
 @Mapper(config = MapperConfiguration.class)

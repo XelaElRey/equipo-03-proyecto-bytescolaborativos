@@ -17,14 +17,14 @@ public class LoginRequestDto {
 /**
  * Nombre de usuario para la autenticación
  */
-@Schema(description = "Nombre de usuario del usuario", example = "juan123", required = true)
+@Schema(description = "Nombre de usuario del usuario", example = "juan123")
 @NotBlank( message = "El nombre de usuario no puede estar vacío")
 private String username;
 
 /**
  * Contraseña para la autenticación
  */
-@Schema(description = "Contraseña del usuario", example = "Password123!", required = true)
+@Schema(description = "Contraseña del usuario", example = "Password123!")
 @NotBlank( message = "La contraseña no puede estar vacía")
 private String password;
 

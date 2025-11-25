@@ -8,5 +8,5 @@ import com.equipo03.motorRecomendaciones.dto.ProductDTO;
 
 public interface RecomendationController {
 
-        public ResponseEntity<List<ProductDTO>> getRecommendations(@PathVariable UUID userId);
+    public ResponseEntity<List<ProductDTO>> getRecommendations(@PathVariable UUID userId);
 }
