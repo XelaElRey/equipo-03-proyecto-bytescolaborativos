@@ -149,6 +149,13 @@ DB_URL_PROD=
 JWT_SECRET_KEY=
 ACCESS_TOKEN_EXPIRATION=
 ```
+## Testing
+
+Esta aplicación incluye pruebas unitarias y de integración para asegurar el correcto funcionamiento de los servicios.
+
+Los servicios testeados son:
+
+UserService, TournamentService y RecommendationService
 
 ## 🚀 Ejecución del Proyecto
 
