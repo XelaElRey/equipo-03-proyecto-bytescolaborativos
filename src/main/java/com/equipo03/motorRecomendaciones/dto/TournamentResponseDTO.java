@@ -1,9 +1,13 @@
 package com.equipo03.motorRecomendaciones.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "Representa un torneo en listados generales")
 public class TournamentResponseDTO {
 

@@ -32,7 +32,6 @@ public class TournamentRequestDTO {
 
     @Schema(description = "Fecha y hora en que se habilitan las inscripciones (debe ser futura)", example = "2026-04-15T00:00:00")
     @NotNull(message = "La fecha de inicio de inscripción es obligatoria")
-    @Future(message = "La fecha de inicio de inscripción debe ser futura")
     private LocalDateTime registrationOpenAt;
 
     @Schema(description = "Fecha y hora en que se cierran las inscripciones (debe ser futura)", example = "2026-04-28T23:59:59")

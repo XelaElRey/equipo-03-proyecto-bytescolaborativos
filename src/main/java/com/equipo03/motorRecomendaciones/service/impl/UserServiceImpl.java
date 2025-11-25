@@ -9,6 +9,8 @@ import com.equipo03.motorRecomendaciones.dto.request.UserRequestDto;
 import com.equipo03.motorRecomendaciones.exception.BadRequestException;
 import com.equipo03.motorRecomendaciones.exception.ResourceNotFoundException;
 import com.equipo03.motorRecomendaciones.mapper.UserMapper;
+
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import com.equipo03.motorRecomendaciones.model.User;
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
   private final UserMapper userMapper;
   private final JwtUtil jwtUtil;
   private final PasswordEncoder passwordEncoder;
+  private final AuthenticationManager authenticationManager;
   private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
   /**
@@ -39,22 +42,25 @@ public class UserServiceImpl implements UserService {
    * @return token JWT
    */
   @Transactional
-  public String registerUser(UserRequestDto userRequestDTO) {
-    verificarRegistro(userRequestDTO.getEmail(), userRequestDTO.getUsername());
+  public String registerUser(UserRequestDto userRequestDto) {
+    verificarRegistro(userRequestDto.getEmail(), userRequestDto.getUsername());
 
-    UserDTO newUserDTO = userMapper.defaultUserDTO(userRequestDTO);
+    UserDTO newUserDTO = userMapper.defaultUserDTO(userRequestDto);
 
     User user = userMapper.userDtoToUser(newUserDTO);
 
-    user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
+    user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
 
     userRepository.save(user);
 
     logger.info("Usuario registrado: {} ", user.getEmail());
 
-    Authentication authetnication = buildAuthentication(newUserDTO.getUsername(), userRequestDTO.getPassword());
-
-    return jwtUtil.generateToken(authetnication);
+    Authentication authentication = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(
+            user.getUsername(),
+            userRequestDto.getPassword() // la contraseña en texto plano
+        ));
+    return jwtUtil.generateToken(authentication);
 
   }
 
@@ -76,8 +82,11 @@ public class UserServiceImpl implements UserService {
 
     logger.info("Usuario registrado: {} ", user.getEmail());
 
-    Authentication authentication = buildAuthentication(user.getUsername(), user.getPassword());
-
+    Authentication authentication = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(
+            user.getUsername(),
+            userRequestDto.getPassword() // la contraseña en texto plano
+        ));
     return jwtUtil.generateToken(authentication);
 
   }
@@ -141,7 +150,12 @@ public class UserServiceImpl implements UserService {
   @Override
   public String loginUser(LoginRequestDto loginRequestDto) {
     verificarLogin(loginRequestDto);
-    Authentication authentication = buildAuthentication(loginRequestDto.getUsername(), loginRequestDto.getPassword());
+
+    Authentication authentication = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(
+            loginRequestDto.getUsername(),
+            loginRequestDto.getPassword()));
+
     return jwtUtil.generateToken(authentication);
   }
 
@@ -185,6 +199,7 @@ public class UserServiceImpl implements UserService {
 
   /**
    * Método encargado de devolver un UserDTO a partir de su email.
+   * 
    * @param email
    * @return
    */
