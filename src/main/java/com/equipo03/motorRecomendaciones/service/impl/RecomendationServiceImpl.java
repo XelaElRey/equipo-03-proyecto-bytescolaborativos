@@ -35,19 +35,19 @@ public class RecomendationServiceImpl implements RecommendationService {
 
     // Pesos y configuraciones inyectadas desde application.yaml
     @Value("${recommendation.tag-weight}")
-    private double TAG_WEIGHT;
+    public double TAG_WEIGHT;
 
     @Value("${recommendation.rating-weight}")
-    private double RATING_WEIGHT;
+    public double RATING_WEIGHT;
 
     @Value("${recommendation.popularity-weight}")
-    private double POPULARITY_WEIGHT;
+    public double POPULARITY_WEIGHT;
 
     @Value("${recommendation.default-limit}")
-    private int DEFAULT_LIMIT;
+    public int DEFAULT_LIMIT;
 
     @Value("${recommendation.positive-rating-threshold}")
-    private int POSITIVE_RATING_THRESHOLD;
+    public int POSITIVE_RATING_THRESHOLD;
 
     // -------------------------
     // Método principal expuesto al controlador
@@ -143,7 +143,6 @@ public class RecomendationServiceImpl implements RecommendationService {
     // Métodos auxiliares
     // -------------------------
 
-
     /**
      * Extrae los tags relevantes para un usuario a partir de sus valoraciones
      * positivas.
@@ -155,7 +154,7 @@ public class RecomendationServiceImpl implements RecommendationService {
      * @return Conjunto de tags normalizados (trim y lowercase) que representan
      *         intereses del usuario
      */
-    private Set<String> extraerTagsUsuario(List<Rating> ratingsUsuario) {
+    public Set<String> extraerTagsUsuario(List<Rating> ratingsUsuario) {
         // Si no hay valoraciones, devolvemos un conjunto vacío
         if (ratingsUsuario == null || ratingsUsuario.isEmpty())
             return Collections.emptySet();
@@ -190,7 +189,7 @@ public class RecomendationServiceImpl implements RecommendationService {
      * @param tagsUsuario Conjunto de tags que representan los intereses del usuario
      * @return Número de tags que coinciden entre el producto y el usuario (long)
      */
-    private long calcularCoincidenciasTags(Product product, Set<String> tagsUsuario) {
+    public long calcularCoincidenciasTags(Product product, Set<String> tagsUsuario) {
         // Si el usuario no tiene tags, o no hay tags en el producto, devolvemos 0
         if (tagsUsuario == null || tagsUsuario.isEmpty() || product.getTags() == null)
             return 0L;
@@ -220,7 +219,7 @@ public class RecomendationServiceImpl implements RecommendationService {
      *              - popularidad: cantidad de valoraciones o score de popularidad
      * @return Score final normalizado y ponderado entre 0.0 y 1.0
      */
-    private double normalizarYCombinarScore(DatosProducto datos) {
+    public double normalizarYCombinarScore(DatosProducto datos) {
         // Normalizamos la cantidad de coincidencias de tags a [0,1]
         double scoreTags = normalizarTags(datos.coincidenciasTags());
 
@@ -247,7 +246,7 @@ public class RecomendationServiceImpl implements RecommendationService {
      * Normaliza el rating promedio de un producto a un valor entre 0 y 1,
      * Se asume que los ratigns van de 0 a 5, por lo que se divide entre 5
      */
-    private double normalizarRating(double promedio) {
+    public double normalizarRating(double promedio) {
         // Dividimos el rating entre 5 para escalar al rango [0,1]
         // Math.min asegura que no se supere 1.0
         // Math.max asegura que no sea menor que 0.0
@@ -261,7 +260,7 @@ public class RecomendationServiceImpl implements RecommendationService {
      * Se aplica una saturación máxima para que más de 5 coincidencias no aumenten
      * el score.
      */
-    private double normalizarTags(long coincidencias) {
+    public double normalizarTags(long coincidencias) {
         // Definimos el número de coincidencias a partir del cual saturamos el score
         final double SAT = 5.0;
         // Escalamos el valor al rango [0,1] y saturamos si excede el máximo
@@ -274,7 +273,7 @@ public class RecomendationServiceImpl implements RecommendationService {
      * populares
      * y se divide por un valor máximo estimado para escalar la puntuación.
      */
-    private double normalizarPopularidad(long popularidad) {
+    public double normalizarPopularidad(long popularidad) {
         // Aplicamos logaritmo (productos con muchas valoraciones no dominan totalmente
         // el score)
         double val = Math.log1p(popularidad);
@@ -297,7 +296,7 @@ public class RecomendationServiceImpl implements RecommendationService {
      * @param limite
      * @return List<Product>
      */
-    private List<Product> filtrarYSeleccionarTop(List<ProductoPuntuado> puntuados, Set<UUID> excluidos, int limite) {
+    public List<Product> filtrarYSeleccionarTop(List<ProductoPuntuado> puntuados, Set<UUID> excluidos, int limite) {
         return puntuados.stream()
                 .filter(p -> !excluidos.contains(p.producto().getId()))
                 .map(ProductoPuntuado::producto)
@@ -313,7 +312,7 @@ public class RecomendationServiceImpl implements RecommendationService {
      * @param filas : list de Object[], cada fila con [idProducto, promedioRating]
      * @return Map<UUID, Double> con el ID del producto y el promedio de rating
      */
-    private Map<UUID, Double> convertirDoubleMap(List<Object[]> filas) {
+    public Map<UUID, Double> convertirDoubleMap(List<Object[]> filas) {
         // Si la lista de filas es null devolvemos un Map vacío para evitar
         // NullPointerException
         if (filas == null)
@@ -346,7 +345,7 @@ public class RecomendationServiceImpl implements RecommendationService {
      *              cantidadValoraciones]
      * @return Map<UUID, Long> con ID de producto → cantidad de valoraciones
      */
-    private Map<UUID, Long> convertirALongMap(List<Object[]> filas) {
+    public Map<UUID, Long> convertirALongMap(List<Object[]> filas) {
         // Si la lista de filas es null, devolvemos un Map vacío para evitar
         // NullPointerException
         if (filas == null)
